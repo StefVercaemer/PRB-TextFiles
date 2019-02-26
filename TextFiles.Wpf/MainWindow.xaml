@@ -5,8 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TextFiles.Wpf"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="891.425" Loaded="Window_Loaded">
     <Grid>
-        
+        <TextBox x:Name="txtTekst" HorizontalAlignment="Left" Height="367" Margin="10,42,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="370" VerticalScrollBarVisibility="Auto"/>
+        <Label Content="Tekst" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="141"/>
+        <Button x:Name="btnLeesTekst" Content="Naar tekst" HorizontalAlignment="Left" Margin="396,42,0,0" VerticalAlignment="Top" Width="88" Click="BtnLeesTekst_Click" Height="29"/>
+        <ListBox x:Name="lstTekstArray" HorizontalAlignment="Left" Height="367" Margin="499,42,0,0" VerticalAlignment="Top" Width="370"/>
+        <Button x:Name="btnLeesArray" Content="Naar array" HorizontalAlignment="Left" Margin="396,76,0,0" VerticalAlignment="Top" Width="88" Height="29" Click="BtnLeesArray_Click"/>
+
     </Grid>
 </Window>
