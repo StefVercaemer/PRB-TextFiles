@@ -39,6 +39,34 @@ namespace TextFiles.Wpf
             txtTekst.Text = bestandsInhoud;
         }
 
+        string LeesIniFile()
+        {
+            string iniFile = "";
+            string bestandsLocatie = AppDomain.CurrentDomain.BaseDirectory + "db.ini";
+            try
+            {
+                // Er wordt een instance aangemaakt van de StreamReader-class
+                // The using statement also closes the StreamReader.
+                using (StreamReader sr = new StreamReader("TestFile.txt"))
+                {
+                    string line;
+                    // De lijnen van de ini-file worden ingelezen
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        Console.WriteLine(line);
+                    }
+                }
+                // na het using statement wordt de StreamReader gesloten en wordt het geheugen vrijgegeven.
+            }
+            catch (Exception e)
+            {
+                // Let the user know what went wrong.
+                Console.WriteLine("The file could not be read:");
+                Console.WriteLine(e.Message);
+            }
+            return iniFile;
+        }
+
         string KiesBestand(string filter = "Text documents (.txt)|*.txt|Comma seperated values (.csv)|*.csv")
         {
             string gekozenBestandsPad;
