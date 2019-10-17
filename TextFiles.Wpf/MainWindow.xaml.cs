@@ -21,50 +21,96 @@ namespace TextFiles.Wpf
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+
+
+
     public partial class MainWindow : Window
     {
-        string bestandsPad;
-        string bestandsInhoud;
+        string foutMelding;
+        //string bestandsPad;
 
         public MainWindow()
         {
             InitializeComponent();
+
+        }
+
+        void ToonFoutmelding()
+        {
+            if (foutMelding == "" || foutMelding == null)
+            {
+                tbkErrors.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                tbkErrors.Visibility = Visibility.Visible;
+            }
+            tbkErrors.Text = foutMelding;
+        }
+
+        string LeesBestand(string bestandsPad)
+        {
+            string bestandsInhoud = "";
             
-        }
+            foutMelding = "";
 
-        void LeesTeKiezenBestand()
-        {
-            bestandsPad = KiesBestand();
-            bestandsInhoud = LeesBestand(bestandsPad);
-            txtTekst.Text = bestandsInhoud;
-        }
-
-        string LeesIniFile()
-        {
-            string iniFile = "";
-            string bestandsLocatie = AppDomain.CurrentDomain.BaseDirectory + "db.ini";
             try
             {
                 // Er wordt een instance aangemaakt van de StreamReader-class
-                // The using statement also closes the StreamReader.
-                using (StreamReader sr = new StreamReader("TestFile.txt"))
+                using (StreamReader sr = new StreamReader(bestandsPad))
                 {
-                    string line;
-                    // De lijnen van de ini-file worden ingelezen
-                    while ((line = sr.ReadLine()) != null)
-                    {
-                        Console.WriteLine(line);
-                    }
+                    bestandsInhoud = sr.ReadToEnd();
                 }
                 // na het using statement wordt de StreamReader gesloten en wordt het geheugen vrijgegeven.
             }
+            catch (FileNotFoundException)
+            {
+                foutMelding = $"Het bestand {bestandsPad} is niet gevonden.";
+            }
+            catch (IOException)
+            {
+                foutMelding = $"Het bestand {bestandsPad} kan niet geopend worden.\nProbeer het te sluiten.";
+            }
             catch (Exception e)
             {
-                // Let the user know what went wrong.
-                Console.WriteLine("The file could not be read:");
-                Console.WriteLine(e.Message);
+                foutMelding = $"Er is een fout opgetreden. {e.Message}";
             }
-            return iniFile;
+            return bestandsInhoud;
+        }
+
+        bool SchrijfBestand(string tekst, string pad, string bestandsNaam)
+        {
+            bool isSuccesvolWeggeschreven = false;
+            string bestandsPad;
+            foutMelding = "";
+
+            if (Directory.Exists(pad))
+            {
+                bestandsPad = pad + bestandsNaam;
+                try
+                {
+                    // Er wordt een instance aangemaakt van de StreamWriter-class
+                    using (StreamWriter sw = new StreamWriter(bestandsPad))
+                    {
+                        sw.Write(tekst);
+                        sw.Close();
+                    }
+                    // na het using statement wordt de StreamWriter gesloten en wordt het geheugen vrijgegeven.
+                    isSuccesvolWeggeschreven = true;
+                }
+                catch (IOException)
+                {
+                    foutMelding = $"Het bestand {bestandsPad} kan niet weggeschreven worden.\nProbeer het geopende bestand op die locatie te sluiten.";
+                }
+                catch (Exception e)
+                {
+                    foutMelding = $"Er is een fout opgetreden. {e.Message}";
+                    throw;
+                }
+            }
+
+
+            return isSuccesvolWeggeschreven;
         }
 
         string KiesBestand(string filter = "Text documents (.txt)|*.txt|Comma seperated values (.csv)|*.csv")
@@ -80,26 +126,6 @@ namespace TextFiles.Wpf
             gekozenBestandsPad = kiesBestand.FileName;
 
             return gekozenBestandsPad;
-        }
-
-        string LeesBestand(string bestandsPad)
-        {
-            string inhoud = "";
-            try
-            {
-                inhoud = File.ReadAllText(bestandsPad, Encoding.GetEncoding("iso-8859-1"));
-            }
-            catch (ArgumentException)
-            {
-                inhoud = "### Fout ###\n" + 
-                         "Je hebt geen bestand geselecteerd";
-            }
-
-            catch (Exception ex)
-            {
-                inhoud = "### Fout ###\n" + ex.Message;
-            }
-            return inhoud;
         }
 
         string[] LeesBestandNaarArray(string bestandsPad)
@@ -122,22 +148,48 @@ namespace TextFiles.Wpf
             return inhoud;
         }
 
-        private void BtnLeesTekst_Click(object sender, RoutedEventArgs e)
-        {
-            LeesTeKiezenBestand();
-        }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            LeesTeKiezenBestand();
+
+            txtTekst.Text = LeesBestand(AppDomain.CurrentDomain.BaseDirectory + "dib.ini");
+            txtBestandsnaam.Text = "db.ini";
+            ToonFoutmelding();
         }
 
         private void BtnLeesArray_Click(object sender, RoutedEventArgs e)
         {
             string[] inhoud;
-            bestandsPad = KiesBestand();
+            string bestandsPad = KiesBestand();
             inhoud = LeesBestandNaarArray(bestandsPad);
             lstTekstArray.ItemsSource = inhoud;
+        }
+
+        private void BtnLeesBestand_Click(object sender, RoutedEventArgs e)
+        {
+            string bestandsNaam;
+            bestandsNaam = txtBestandsnaam.Text;
+            
+            txtTekst.Text = LeesBestand(AppDomain.CurrentDomain.BaseDirectory + bestandsNaam);
+
+            ToonFoutmelding();
+        }
+
+        private void BtnKiesBestand_Click(object sender, RoutedEventArgs e)
+        {
+            string bestandsPad = KiesBestand();
+            string bestandsInhoud = LeesBestand(bestandsPad);
+            txtTekst.Text = bestandsInhoud;
+            ToonFoutmelding();
+        }
+
+        private void BtnSchrijfBestand_Click(object sender, RoutedEventArgs e)
+        {
+            string tekst = txtTekst.Text;
+            string bestandsNaam = txtBestandsnaam.Text;
+            string bestandsPad = AppDomain.CurrentDomain.BaseDirectory + bestandsNaam;
+            SchrijfBestand(tekst, bestandsPad);
+            ToonFoutmelding();
         }
     }
 }
